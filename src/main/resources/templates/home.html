@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная</title>
+</head>
+<body>
+<h1 th:text="${message}">Приветствие</h1>
+<a th:href="@{/tasks}">Перейти к задачам</a>
+</body>
+</html>

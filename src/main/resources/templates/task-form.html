@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Форма задачи</title>
+</head>
+<body>
+<h1>Форма задачи</h1>
+
+<form th:action="@{/task/save}"
+      th:object="${taskModel}"
+      method="post">
+
+    <input type="hidden" th:field="*{id}">
+
+    <p>
+        <label for="name">Название:</label><br>
+        <input id="name" type="text"
+               th:field="*{name}" maxlength="255" required>
+    </p>
+
+    <p>
+        <label for="description">Описание:</label><br>
+        <textarea id="description"
+                  th:field="*{description}"></textarea>
+    </p>
+
+    <p>
+        <label for="dueDate">Срок:</label><br>
+        <input id="dueDate" type="date" th:field="*{dueDate}">
+    </p>
+
+    <p>
+        <label>
+            <input type="checkbox" th:field="*{completed}">
+            Выполнена
+        </label>
+    </p>
+
+    <button type="submit">Сохранить</button>
+</form>
+
+<p><a th:href="@{/tasks}">Назад к списку</a></p>
+</body>
+</html>
