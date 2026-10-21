@@ -3,11 +3,17 @@ package com.example.demo.model;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public class TaskModel {
 
     private Long id;
+
+    @NotBlank(message = "Введите название задачи")
+    @Size(max = 255, message = "Название должно содержать не более 255 символов")
     private String name;
+
     private String description;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)

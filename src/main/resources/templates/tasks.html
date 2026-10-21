@@ -12,7 +12,14 @@
     <a th:href="@{/task/new}">Добавить задачу</a>
 </p>
 
-<p th:if="${#lists.isEmpty(tasks)}">Задач пока нет.</p>
+<p>
+    Показать:
+    <a th:href="@{/tasks}">Все</a> |
+    <a th:href="@{/tasks/filter(completed=true)}">Выполненные</a> |
+    <a th:href="@{/tasks/filter(completed=false)}">Невыполненные</a>
+</p>
+
+<p th:if="${#lists.isEmpty(tasks)}">Задач нет.</p>
 
 <div th:each="task : ${tasks}">
     <h2 th:text="${task.name}">Название</h2>
@@ -27,9 +34,17 @@
         Статус
     </p>
 
-    <a th:href="@{/task/edit/{id}(id=${task.id})}">
-        Редактировать
-    </a>
+    <p>
+        <a th:href="@{/task/edit/{id}(id=${task.id})}">
+            Редактировать
+        </a>
+    </p>
+
+    <form th:action="@{/task/delete/{id}(id=${task.id})}"
+          method="post">
+        <button type="submit">Удалить</button>
+    </form>
+
     <hr>
 </div>
 </body>

@@ -1,35 +1,29 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.TaskModel;
+import com.example.demo.service.TaskService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.NoSuchElementException;
 
 @Controller
 public class TaskController {
 
-    private final List<TaskModel> tasks = new ArrayList<>();
-    private long nextId = 1;
+    private final TaskService taskService;
 
-    public TaskController() {
-        TaskModel task = new TaskModel();
-        task.setId(nextId++);
-        task.setName("Первая задача");
-        task.setDescription("Изучить Spring MVC и Thymeleaf");
-        task.setDueDate(LocalDate.now().plusDays(1));
-        task.setCompleted(false);
-        tasks.add(task);
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService;
     }
 
     @GetMapping("/tasks")
     public String listTasks(Model model) {
-        model.addAttribute("tasks", tasks);
+        model.addAttribute("tasks", taskService.findAll());
         return "tasks";
     }
 
@@ -41,31 +35,41 @@ public class TaskController {
 
     @GetMapping("/task/edit/{id}")
     public String editTask(@PathVariable("id") Long id, Model model) {
-        model.addAttribute("taskModel", findTask(id));
+        model.addAttribute("taskModel", taskService.findById(id));
         return "task-form";
     }
 
     @PostMapping("/task/save")
-    public String saveTask(@ModelAttribute("taskModel") TaskModel form) {
-        if (form.getId() == null) {
-            form.setId(nextId++);
-            tasks.add(form);
-        } else {
-            TaskModel task = findTask(form.getId());
-            task.setName(form.getName());
-            task.setDescription(form.getDescription());
-            task.setDueDate(form.getDueDate());
-            task.setCompleted(form.isCompleted());
+    public String saveTask(
+            @Valid @ModelAttribute("taskModel") TaskModel taskModel,
+            BindingResult result) {
+
+        if (result.hasErrors()) {
+            return "task-form";
         }
 
+        taskService.save(taskModel);
         return "redirect:/tasks";
     }
 
-    private TaskModel findTask(Long id) {
-        return tasks.stream()
-                .filter(task -> task.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Задача не найдена"));
+    @PostMapping("/task/delete/{id}")
+    public String deleteTask(@PathVariable("id") Long id) {
+        taskService.deleteById(id);
+        return "redirect:/tasks";
+    }
+
+    @GetMapping("/tasks/filter")
+    public String filterTasks(
+            @RequestParam("completed") boolean completed,
+            Model model) {
+
+        model.addAttribute("tasks", taskService.findByCompleted(completed));
+        return "tasks";
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public String handleNotFound(NoSuchElementException exception) {
+        throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, exception.getMessage(), exception);
     }
 }

@@ -19,6 +19,10 @@
                th:field="*{name}" maxlength="255" required>
     </p>
 
+    <p th:if="${#fields.hasErrors('name')}"
+       th:errors="*{name}"
+       style="color: red;"></p>
+
     <p>
         <label for="description">Описание:</label><br>
         <textarea id="description"
@@ -29,6 +33,10 @@
         <label for="dueDate">Срок:</label><br>
         <input id="dueDate" type="date" th:field="*{dueDate}">
     </p>
+
+    <p th:if="${#fields.hasErrors('dueDate')}"
+       th:errors="*{dueDate}"
+       style="color: red;"></p>
 
     <p>
         <label>
