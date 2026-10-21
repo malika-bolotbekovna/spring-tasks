@@ -2,51 +2,63 @@
 <html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Форма задачи</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<h1>Форма задачи</h1>
+<main class="container">
+    <div class="panel task-form">
+        <h1 th:text="${taskModel.id == null
+            ? 'Новая задача' : 'Редактирование задачи'}"></h1>
 
-<form th:action="@{/task/save}"
-      th:object="${taskModel}"
-      method="post">
+        <p class="muted">Укажите название, описание и срок выполнения.</p>
 
-    <input type="hidden" th:field="*{id}">
+        <form th:action="@{/task/save}"
+              th:object="${taskModel}"
+              method="post">
 
-    <p>
-        <label for="name">Название:</label><br>
-        <input id="name" type="text" th:field="*{name}">
-    </p>
+            <input type="hidden" th:field="*{id}">
 
-    <p th:if="${#fields.hasErrors('name')}"
-       th:errors="*{name}"
-       style="color: red;"></p>
+            <div class="field">
+                <label for="name">Название</label>
+                <input id="name" type="text" th:field="*{name}"
+                       placeholder="Что нужно сделать?">
 
-    <p>
-        <label for="description">Описание:</label><br>
-        <textarea id="description"
-                  th:field="*{description}"></textarea>
-    </p>
+                <span class="error"
+                      th:if="${#fields.hasErrors('name')}"
+                      th:errors="*{name}"></span>
+            </div>
 
-    <p>
-        <label for="dueDate">Срок:</label><br>
-        <input id="dueDate" type="date" th:field="*{dueDate}">
-    </p>
+            <div class="field">
+                <label for="description">Описание</label>
+                <textarea id="description"
+                          th:field="*{description}"
+                          placeholder="Подробности задачи"></textarea>
+            </div>
 
-    <p th:if="${#fields.hasErrors('dueDate')}"
-       th:errors="*{dueDate}"
-       style="color: red;"></p>
+            <div class="field">
+                <label for="dueDate">Срок выполнения</label>
+                <input id="dueDate" type="date" th:field="*{dueDate}">
 
-    <p>
-        <label>
-            <input type="checkbox" th:field="*{completed}">
-            Выполнена
-        </label>
-    </p>
+                <span class="error"
+                      th:if="${#fields.hasErrors('dueDate')}"
+                      th:errors="*{dueDate}"></span>
+            </div>
 
-    <button type="submit">Сохранить</button>
-</form>
+            <p>
+                <label>
+                    <input type="checkbox" th:field="*{completed}">
+                    Задача выполнена
+                </label>
+            </p>
 
-<p><a th:href="@{/tasks}">Назад к списку</a></p>
+            <div class="actions">
+                <button type="submit">Сохранить</button>
+                <a class="button secondary" th:href="@{/tasks}">Отмена</a>
+            </div>
+        </form>
+    </div>
+</main>
 </body>
 </html>

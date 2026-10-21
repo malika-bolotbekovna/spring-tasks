@@ -5,6 +5,7 @@ import com.example.demo.model.TaskModel;
 import com.example.demo.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -68,5 +69,31 @@ public class TaskService {
         model.setDueDate(task.getDueDate());
         model.setCompleted(task.isCompleted());
         return model;
+    }
+
+    public List<TaskModel> filter(
+            Boolean completed,
+            LocalDate startDate,
+            LocalDate endDate) {
+
+        List<Task> tasks;
+
+        if (startDate != null && endDate != null) {
+            if (completed == null) {
+                tasks = taskRepository.findByDueDateBetween(
+                        startDate, endDate);
+            } else {
+                tasks = taskRepository.findByCompletedAndDueDateBetween(
+                        completed, startDate, endDate);
+            }
+        } else if (completed != null) {
+            tasks = taskRepository.findByCompleted(completed);
+        } else {
+            tasks = taskRepository.findAll();
+        }
+
+        return tasks.stream()
+                .map(this::convertToModel)
+                .toList();
     }
 }

@@ -2,50 +2,112 @@
 <html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Задачи</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Мои задачи</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<h1>Список задач</h1>
+<main class="container">
+    <header class="header">
+        <div>
+            <a th:href="@{/}" class="muted">← Главная</a>
+            <h1>Мои задачи</h1>
+            <span class="muted">Планируйте дела и отслеживайте выполнение</span>
+        </div>
 
-<p>
-    <a th:href="@{/}">Главная</a> |
-    <a th:href="@{/task/new}">Добавить задачу</a>
-</p>
+        <a class="button" th:href="@{/task/new}">+ Новая задача</a>
+    </header>
 
-<p>
-    Показать:
-    <a th:href="@{/tasks}">Все</a> |
-    <a th:href="@{/tasks/filter(completed=true)}">Выполненные</a> |
-    <a th:href="@{/tasks/filter(completed=false)}">Невыполненные</a>
-</p>
+    <section class="panel" aria-label="Фильтры">
+        <form class="filters"
+              th:action="@{/tasks/filter}"
+              method="get">
 
-<p th:if="${#lists.isEmpty(tasks)}">Задач нет.</p>
+            <div class="field">
+                <label for="completed">Статус</label>
+                <select id="completed" name="completed">
+                    <option value=""
+                            th:selected="${completed == null}">
+                        Все задачи
+                    </option>
+                    <option value="false"
+                            th:selected="${completed != null and completed == false}">
+                        Невыполненные
+                    </option>
+                    <option value="true"
+                            th:selected="${completed != null and completed == true}">
+                        Выполненные
+                    </option>
+                </select>
+            </div>
 
-<div th:each="task : ${tasks}">
-    <h2 th:text="${task.name}">Название</h2>
-    <p th:text="${task.description}">Описание</p>
+            <div class="field">
+                <label for="startDate">Срок с</label>
+                <input id="startDate"
+                       name="startDate"
+                       type="date"
+                       th:value="${startDate}">
+            </div>
 
-    <p>
-        Срок:
-        <span th:text="${task.dueDate}">Дата</span>
-    </p>
+            <div class="field">
+                <label for="endDate">По</label>
+                <input id="endDate"
+                       name="endDate"
+                       type="date"
+                       th:value="${endDate}">
+            </div>
 
-    <p th:text="${task.completed ? 'Выполнена' : 'Не выполнена'}">
-        Статус
-    </p>
+            <button type="submit">Применить</button>
+            <a class="button secondary" th:href="@{/tasks}">Сбросить</a>
+        </form>
 
-    <p>
-        <a th:href="@{/task/edit/{id}(id=${task.id})}">
-            Редактировать
-        </a>
-    </p>
+        <p class="error"
+           th:if="${filterError != null}"
+           th:text="${filterError}"></p>
+    </section>
 
-    <form th:action="@{/task/delete/{id}(id=${task.id})}"
-          method="post">
-        <button type="submit">Удалить</button>
-    </form>
+    <p class="muted"
+       th:if="${filterError == null}"
+       th:text="|Найдено задач: ${#lists.size(tasks)}|"></p>
 
-    <hr>
-</div>
+    <div class="panel empty"
+         th:if="${#lists.isEmpty(tasks) and filterError == null}">
+        <h2>Задач не найдено</h2>
+        <p class="muted">Измените фильтры или создайте новую задачу.</p>
+    </div>
+
+    <section class="grid">
+        <article class="card" th:each="task : ${tasks}">
+            <span class="badge"
+                  th:classappend="${task.completed ? 'done' : 'pending'}"
+                  th:text="${task.completed ? 'Выполнена' : 'В работе'}">
+            </span>
+
+            <h2 th:text="${task.name}">Название</h2>
+
+            <p class="description"
+               th:text="${task.description}">Описание</p>
+
+            <div class="muted">
+                Срок:
+                <span th:text="${task.dueDate != null
+                    ? #temporals.format(task.dueDate, 'dd.MM.yyyy')
+                    : 'не указан'}"></span>
+            </div>
+
+            <div class="actions">
+                <a class="button secondary"
+                   th:href="@{/task/edit/{id}(id=${task.id})}">
+                    Изменить
+                </a>
+
+                <form th:action="@{/task/delete/{id}(id=${task.id})}"
+                      method="post">
+                    <button class="danger" type="submit">Удалить</button>
+                </form>
+            </div>
+        </article>
+    </section>
+</main>
 </body>
 </html>

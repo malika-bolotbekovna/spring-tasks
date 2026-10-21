@@ -12,6 +12,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.NoSuchElementException;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
+import java.util.List;
+
 @Controller
 public class TaskController {
 
@@ -60,10 +65,40 @@ public class TaskController {
 
     @GetMapping("/tasks/filter")
     public String filterTasks(
-            @RequestParam("completed") boolean completed,
+            @RequestParam(name = "completed", required = false)
+            Boolean completed,
+
+            @RequestParam(name = "startDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate startDate,
+
+            @RequestParam(name = "endDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate endDate,
+
             Model model) {
 
-        model.addAttribute("tasks", taskService.findByCompleted(completed));
+        model.addAttribute("completed", completed);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+
+        String filterError = null;
+
+        if ((startDate == null) != (endDate == null)) {
+            filterError = "Для диапазона укажите обе даты.";
+        } else if (startDate != null && startDate.isAfter(endDate)) {
+            filterError = "Начальная дата не должна быть позже конечной.";
+        }
+
+        if (filterError != null) {
+            model.addAttribute("filterError", filterError);
+            model.addAttribute("tasks", List.of());
+            return "tasks";
+        }
+
+        model.addAttribute("tasks",
+                taskService.filter(completed, startDate, endDate));
+
         return "tasks";
     }
 
