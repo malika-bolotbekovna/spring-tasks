@@ -15,8 +15,7 @@
 
     <p>
         <label for="name">Название:</label><br>
-        <input id="name" type="text"
-               th:field="*{name}" maxlength="255" required>
+        <input id="name" type="text" th:field="*{name}">
     </p>
 
     <p th:if="${#fields.hasErrors('name')}"

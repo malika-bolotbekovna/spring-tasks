@@ -11,7 +11,8 @@ public class TaskModel {
     private Long id;
 
     @NotBlank(message = "Введите название задачи")
-    @Size(max = 255, message = "Название должно содержать не более 255 символов")
+    @Size(min = 3, max = 100,
+            message = "Название должно содержать от 3 до 100 символов")
     private String name;
 
     private String description;
